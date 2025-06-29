@@ -1,0 +1,19 @@
+{
+  "name": "home-library-lambda",
+  "version": "1.0.0",
+  "description": "Lambda functions for Home Library API",
+  "main": "index.js",
+  "scripts": {
+    "zip": "zip -r function.zip . -x '*.zip' 'node_modules/*' '*.git*'",
+    "deploy": "npm run zip && aws lambda update-function-code --function-name HomeLibraryGetBooks --zip-file fileb://function.zip",
+    "deploy:delete": "zip -r deleteBook.zip deleteBook.js node_modules && aws lambda update-function-code --function-name HomeLibraryDeleteBook --zip-file fileb://deleteBook.zip",
+    "deploy:create": "zip -r createBook.zip createBook.js node_modules && aws lambda update-function-code --function-name HomeLibraryCreateBook --zip-file fileb://createBook.zip"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1450.0"
+  },
+  "devDependencies": {},
+  "keywords": ["aws", "lambda", "dynamodb", "api"],
+  "author": "",
+  "license": "MIT"
+} 
