@@ -44,19 +44,35 @@ This directory contains GitHub Actions workflows for automated testing and deplo
 
 ### Required Secrets
 
-#### Backend Secrets
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `COGNITO_USER_POOL_ID`
-- `COGNITO_CLIENT_ID`
-- `COGNITO_IDENTITY_POOL_ID`
-- `API_GATEWAY_ID`
-- `API_GATEWAY_URL`
-- `DYNAMODB_TABLE_NAME`
+#### AWS Authentication (OIDC)
+- `AWS_ROLE_ARN`: ARN of the IAM role for GitHub Actions (created by setup-oidc.sh)
 
-#### Frontend Secrets
-- `S3_BUCKET_NAME`: Your S3 bucket name
+#### Backend Configuration
+- `COGNITO_USER_POOL_ID` - Your Cognito User Pool ID (e.g., `us-east-1_XOAlNThzg`)
+- `COGNITO_CLIENT_ID` - Your Cognito Client ID (e.g., `6o1g4cjic5sjbug0g71scu2vb`)
+- `COGNITO_IDENTITY_POOL_ID` - Your Cognito Identity Pool ID (e.g., `us-east-1:505f2fef-cf0f-4fcc-a42b-9bb525390978`)
+- `API_GATEWAY_ID` - Your API Gateway ID (e.g., `uy5tp26jg7`)
+- `API_GATEWAY_URL` - Your API Gateway URL (e.g., `https://uy5tp26jg7.execute-api.us-east-1.amazonaws.com/prod`)
+- `DYNAMODB_TABLE_NAME` - Your DynamoDB table name (e.g., `HomeLibraryBooks`)
+
+#### Frontend Configuration
+- `S3_BUCKET_NAME`: Your S3 bucket name (`ivpaul-home-library-app`)
 - `CLOUDFRONT_DISTRIBUTION_ID`: (Optional) For CDN
+
+## 🔐 OIDC Setup
+
+### 1. Run the OIDC setup script:
+```bash
+cd backend/infra/scripts/deployment
+./setup-oidc.sh
+```
+
+### 2. Add the role ARN to GitHub Secrets:
+- Name: `AWS_ROLE_ARN`
+- Value: The ARN output by the setup script
+
+### 3. Remove old credentials:
+- Delete `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets
 
 ## 🔄 Workflow Behavior
 

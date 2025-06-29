@@ -92,4 +92,7 @@ SECRETS_SETUP.md
 # Build outputs
 web/build/
 
-# AWS Configuration files (contain sensitive resource IDs) 
+# AWS Configuration files (contain sensitive resource IDs)
+
+# AWS OIDC setup script (contains sensitive configuration)
+backend/infra/scripts/deployment/setup-oidc.sh 
