@@ -71,7 +71,7 @@ backup_lambda() {
     # Clean up
     rm -f /tmp/function_url.txt
     
-    cd ../../infra/scripts/ci-cd
+    cd ../../../infra/scripts/ci-cd
 }
 
 # Backup DynamoDB data
