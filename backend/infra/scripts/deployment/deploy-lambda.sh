@@ -5,16 +5,6 @@
 
 set -e
 
-# Load configuration from config.json
-if [ ! -f "config.json" ]; then
-    echo "Error: config.json not found. Please run setup scripts first."
-    exit 1
-fi
-
-# Parse configuration
-REGION=$(jq -r '.aws.region' config.json)
-ROLE_NAME="HomeLibraryLambdaRole"
-
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -37,6 +27,23 @@ log_warning() {
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
+
+# Load configuration from config.json or environment variables
+if [ -f "config.json" ]; then
+    # Use config.json if available (local development)
+    REGION=$(jq -r '.aws.region' config.json)
+    log_info "Using config.json for configuration"
+elif [ -n "$AWS_REGION" ]; then
+    # Use environment variables (GitHub Actions)
+    REGION="$AWS_REGION"
+    log_info "Using environment variables for configuration"
+else
+    # Default fallback
+    REGION="us-east-1"
+    log_info "Using default region: $REGION"
+fi
+
+ROLE_NAME="HomeLibraryLambdaRole"
 
 echo "Deploying Lambda functions..."
 log_info "Using region: $REGION"
