@@ -117,6 +117,21 @@ for func_config in "${FUNCTIONS[@]}"; do
             --region "$REGION" \
             --no-cli-pager
         
+        # Wait for function update to complete
+        log_info "Waiting for function update to complete..."
+        while true; do
+            STATUS=$(aws lambda get-function --function-name "$func_name" --region "$REGION" --query 'Configuration.LastUpdateStatus' --output text --no-cli-pager 2>/dev/null || echo "Failed")
+            if [ "$STATUS" = "Successful" ]; then
+                break
+            elif [ "$STATUS" = "Failed" ]; then
+                log_error "Function update failed for $func_name"
+                exit 1
+            else
+                log_info "Function update in progress... waiting 5 seconds"
+                sleep 5
+            fi
+        done
+        
         # Update function configuration
         aws lambda update-function-configuration \
             --function-name "$func_name" \
@@ -127,6 +142,21 @@ for func_config in "${FUNCTIONS[@]}"; do
             --memory-size 128 \
             --region "$REGION" \
             --no-cli-pager
+        
+        # Wait for configuration update to complete
+        log_info "Waiting for configuration update to complete..."
+        while true; do
+            STATUS=$(aws lambda get-function --function-name "$func_name" --region "$REGION" --query 'Configuration.LastUpdateStatus' --output text --no-cli-pager 2>/dev/null || echo "Failed")
+            if [ "$STATUS" = "Successful" ]; then
+                break
+            elif [ "$STATUS" = "Failed" ]; then
+                log_error "Configuration update failed for $func_name"
+                exit 1
+            else
+                log_info "Configuration update in progress... waiting 5 seconds"
+                sleep 5
+            fi
+        done
             
     else
         log_info "Creating new $func_name function..."
@@ -142,6 +172,21 @@ for func_config in "${FUNCTIONS[@]}"; do
             --memory-size 128 \
             --region "$REGION" \
             --no-cli-pager
+        
+        # Wait for function creation to complete
+        log_info "Waiting for function creation to complete..."
+        while true; do
+            STATUS=$(aws lambda get-function --function-name "$func_name" --region "$REGION" --query 'Configuration.LastUpdateStatus' --output text --no-cli-pager 2>/dev/null || echo "Failed")
+            if [ "$STATUS" = "Successful" ]; then
+                break
+            elif [ "$STATUS" = "Failed" ]; then
+                log_error "Function creation failed for $func_name"
+                exit 1
+            else
+                log_info "Function creation in progress... waiting 5 seconds"
+                sleep 5
+            fi
+        done
     fi
     
     log_success "$func_name deployed successfully"
