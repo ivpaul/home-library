@@ -45,6 +45,9 @@ create_backup_dir() {
 backup_lambda() {
     log_info "Creating Lambda function backups..."
     
+    # Store the backup directory path
+    BACKUP_PATH="$(pwd)/../../backup"
+    
     cd ../../../lambda
     
     # List of Lambda functions
@@ -60,7 +63,7 @@ backup_lambda() {
             --output text > /tmp/function_url.txt
         
         # Download the zip file
-        curl -o "../../backup/${function}.zip" "$(cat /tmp/function_url.txt)"
+        curl -o "$BACKUP_PATH/${function}.zip" "$(cat /tmp/function_url.txt)"
         
         log_success "Backed up $function"
     done
