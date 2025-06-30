@@ -5,8 +5,10 @@
 
 set -e
 
-# Configuration
-BACKUP_DIR="../../backup"
+# Get the script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+BACKUP_DIR="$PROJECT_ROOT/backup"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_NAME="backup_${TIMESTAMP}"
 
@@ -45,11 +47,6 @@ create_backup_dir() {
 backup_lambda() {
     log_info "Creating Lambda function backups..."
     
-    # Store the backup directory path
-    BACKUP_PATH="$(pwd)/../../backup"
-    
-    cd ../../../lambda
-    
     # List of Lambda functions
     FUNCTIONS=("HomeLibraryGetBooks" "HomeLibraryCreateBook" "HomeLibraryUpdateBook" "HomeLibraryDeleteBook" "HomeLibraryGetBook")
     
@@ -63,15 +60,13 @@ backup_lambda() {
             --output text > /tmp/function_url.txt
         
         # Download the zip file
-        curl -o "$BACKUP_PATH/${function}.zip" "$(cat /tmp/function_url.txt)"
+        curl -o "$BACKUP_DIR/${function}.zip" "$(cat /tmp/function_url.txt)"
         
         log_success "Backed up $function"
     done
     
     # Clean up
     rm -f /tmp/function_url.txt
-    
-    cd ../../../infra/scripts/ci-cd
 }
 
 # Backup DynamoDB data
@@ -137,13 +132,15 @@ cleanup_old_backups() {
         log_info "No cleanup needed (only $BACKUP_COUNT backups exist)"
     fi
     
-    cd ../../infra/scripts/ci-cd
+    cd "$SCRIPT_DIR"
 }
 
 # Main backup function
 main() {
     log_info "Starting backup process..."
     log_info "Backup name: $BACKUP_NAME"
+    log_info "Project root: $PROJECT_ROOT"
+    log_info "Backup directory: $BACKUP_DIR"
     
     create_backup_dir
     backup_lambda
