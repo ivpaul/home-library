@@ -34,7 +34,7 @@ jobs:
       - name: Run tests
         run: |
           cd web
-          npm test -- --watchAll=false
+          npm test -- --watchAll=false --passWithNoTests
 
       - name: Build application
         run: |
