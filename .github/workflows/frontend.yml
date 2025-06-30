@@ -77,20 +77,12 @@ jobs:
         run: |
           aws s3 sync web/build/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
-      - name: Invalidate CloudFront cache
-        if: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID != '' }}
-        run: |
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
-
       - name: Notify deployment status
         if: always()
         run: |
           if [ ${{ job.status }} == 'success' ]; then
             echo "✅ Frontend deployment successful!"
             echo "S3 Bucket: s3://${{ secrets.S3_BUCKET_NAME }}"
-            if [ "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" != "" ]; then
-              echo "CloudFront Distribution: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}"
-            fi
           else
             echo "❌ Frontend deployment failed!"
             echo "Check the logs for more details"
