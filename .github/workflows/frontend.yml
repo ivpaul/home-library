@@ -49,6 +49,18 @@ jobs:
           export REACT_APP_API_GATEWAY_URL="${{ secrets.API_GATEWAY_URL }}"
           npm run build
 
+      - name: Print env vars for debugging
+        run: |
+          echo "USER_POOL_ID=$REACT_APP_COGNITO_USER_POOL_ID"
+          echo "CLIENT_ID=$REACT_APP_COGNITO_CLIENT_ID"
+          echo "IDENTITY_POOL_ID=$REACT_APP_COGNITO_IDENTITY_POOL_ID"
+          echo "API_GATEWAY_URL=$REACT_APP_API_GATEWAY_URL"
+        env:
+          REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
+          REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
+          REACT_APP_API_GATEWAY_URL: ${{ secrets.API_GATEWAY_URL }}
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
