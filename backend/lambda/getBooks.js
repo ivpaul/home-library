@@ -1,8 +1,6 @@
 const AWS = require('aws-sdk');
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-// Updated: Testing OIDC authentication for GitHub Actions deployment
-
 // Helper function to get user info from Cognito
 const getUserInfo = (event) => {
     try {
