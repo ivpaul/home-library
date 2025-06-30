@@ -45,7 +45,7 @@ create_backup_dir() {
 backup_lambda() {
     log_info "Creating Lambda function backups..."
     
-    cd ../../lambda
+    cd ../../../lambda
     
     # List of Lambda functions
     FUNCTIONS=("HomeLibraryGetBooks" "HomeLibraryCreateBook" "HomeLibraryUpdateBook" "HomeLibraryDeleteBook" "HomeLibraryGetBook")
@@ -68,7 +68,7 @@ backup_lambda() {
     # Clean up
     rm -f /tmp/function_url.txt
     
-    cd ../infra/scripts/ci-cd
+    cd ../../infra/scripts/ci-cd
 }
 
 # Backup DynamoDB data
