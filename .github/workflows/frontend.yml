@@ -43,11 +43,12 @@ jobs:
       - name: Build application
         run: |
           cd web
-          export REACT_APP_COGNITO_USER_POOL_ID="${{ secrets.COGNITO_USER_POOL_ID }}"
-          export REACT_APP_COGNITO_CLIENT_ID="${{ secrets.COGNITO_CLIENT_ID }}"
-          export REACT_APP_COGNITO_IDENTITY_POOL_ID="${{ secrets.COGNITO_IDENTITY_POOL_ID }}"
-          export REACT_APP_API_GATEWAY_URL="${{ secrets.API_GATEWAY_URL }}"
-          npm run build
+          env \
+            REACT_APP_COGNITO_USER_POOL_ID="${{ secrets.COGNITO_USER_POOL_ID }}" \
+            REACT_APP_COGNITO_CLIENT_ID="${{ secrets.COGNITO_CLIENT_ID }}" \
+            REACT_APP_COGNITO_IDENTITY_POOL_ID="${{ secrets.COGNITO_IDENTITY_POOL_ID }}" \
+            REACT_APP_API_GATEWAY_URL="${{ secrets.API_GATEWAY_URL }}" \
+            npm run build
 
       - name: Print env vars for debugging
         run: |
