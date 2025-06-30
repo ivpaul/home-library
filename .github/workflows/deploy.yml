@@ -61,12 +61,24 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/lambda/package-lock.json
 
+      - name: Debug environment
+        run: |
+          echo "GitHub repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "AWS Region: ${{ env.AWS_REGION }}"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           role-session-name: GitHubActions-${{ github.run_id }}
+
+      - name: Test AWS credentials
+        run: |
+          aws sts get-caller-identity
+          aws --version
 
       - name: Install dependencies
         run: |
