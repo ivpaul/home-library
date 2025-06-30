@@ -29,9 +29,10 @@ log_error() {
 }
 
 # Load configuration from config.json or environment variables
-if [ -f "config.json" ]; then
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/config.json" ]; then
     # Use config.json if available (local development)
-    REGION=$(jq -r '.aws.region' config.json)
+    REGION=$(jq -r '.aws.region' "$SCRIPT_DIR/config.json")
     log_info "Using config.json for configuration"
 elif [ -n "$AWS_REGION" ]; then
     # Use environment variables (GitHub Actions)

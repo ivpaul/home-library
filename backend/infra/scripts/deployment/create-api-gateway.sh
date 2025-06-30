@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Load configuration from config.json
-if [ ! -f "config.json" ]; then
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ ! -f "$SCRIPT_DIR/config.json" ]; then
     echo "Error: config.json not found. Please run setup scripts first."
     exit 1
 fi
 
 # Parse configuration
-REGION=$(jq -r '.aws.region' config.json)
+REGION=$(jq -r '.aws.region' "$SCRIPT_DIR/config.json")
 
 echo "Creating API Gateway for Home Library..."
 echo "Using region: $REGION"
@@ -170,7 +171,7 @@ echo "Base URL: https://$API_ID.execute-api.$REGION.amazonaws.com/prod"
 echo "Updating config.json with API Gateway ID..."
 jq --arg api_id "$API_ID" --arg region "$REGION" \
    '.apiGateway.id = $api_id | .apiGateway.url = "https://\($api_id).execute-api.\($region).amazonaws.com/prod"' \
-   config.json > config.json.tmp && mv config.json.tmp config.json
+   "$SCRIPT_DIR/config.json" > "$SCRIPT_DIR/config.json.tmp" && mv "$SCRIPT_DIR/config.json.tmp" "$SCRIPT_DIR/config.json"
 
 echo "Config updated with API Gateway ID: $API_ID"
 
