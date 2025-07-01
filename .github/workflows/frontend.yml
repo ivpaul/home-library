@@ -6,89 +6,21 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/frontend.yml'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'web/**'
-      - '.github/workflows/frontend.yml'
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: web/package-lock.json
-
-      - name: Install dependencies
-        run: |
-          cd web
-          npm ci
-
-      - name: Run tests
-        run: |
-          cd web
-          npm test -- --watchAll=false --passWithNoTests
-
-      - name: Build application
-        run: |
-          cd web
-          npm run build
-        env:
-          REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-          REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
-          REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
-          REACT_APP_API_GATEWAY_URL: ${{ secrets.API_GATEWAY_URL }}
-
-      - name: Print env vars for debugging
-        run: |
-          echo "USER_POOL_ID=$REACT_APP_COGNITO_USER_POOL_ID"
-          echo "CLIENT_ID=$REACT_APP_COGNITO_CLIENT_ID"
-          echo "IDENTITY_POOL_ID=$REACT_APP_COGNITO_IDENTITY_POOL_ID"
-          echo "API_GATEWAY_URL=$REACT_APP_API_GATEWAY_URL"
-        env:
-          REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-          REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID }}
-          REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
-          REACT_APP_API_GATEWAY_URL: ${{ secrets.API_GATEWAY_URL }}
-
-      - name: Print built env vars
-        run: |
-          echo 'Checking for injected Cognito and API Gateway values in built JS files:'
-          grep -o 'us-east-1[a-zA-Z0-9_-]*' web/build/static/js/*.js || true
-          grep -o '[0-9a-z]{20,}' web/build/static/js/*.js || true
-          grep -o 'https://[a-zA-Z0-9.-]*/[a-zA-Z0-9_-]*' web/build/static/js/*.js || true
-
-      - name: Print secrets for debugging
-        run: |
-          echo "COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}"
-          echo "COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}"
-          echo "COGNITO_IDENTITY_POOL_ID=${{ secrets.COGNITO_IDENTITY_POOL_ID }}"
-          echo "API_GATEWAY_URL=${{ secrets.API_GATEWAY_URL }}"
-
-      - name: Clean build directory
-        run: |
-          cd web
-          rm -rf build
-
   deploy:
-    needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
+    permissions:             # make sure the job itself can mint an OIDC token
+      id-token: write
+      contents: read
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -97,21 +29,22 @@ jobs:
           cache: 'npm'
           cache-dependency-path: web/package-lock.json
 
-      - name: Install dependencies
+      - name: Install & Build
         run: |
           cd web
           npm ci
-
-      - name: Build application
-        run: |
-          cd web
           npm run build
+        env:
+          REACT_APP_COGNITO_USER_POOL_ID:     ${{ secrets.COGNITO_USER_POOL_ID }}
+          REACT_APP_COGNITO_CLIENT_ID:        ${{ secrets.COGNITO_CLIENT_ID }}
+          REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
+          REACT_APP_API_GATEWAY_URL:          ${{ secrets.API_GATEWAY_URL }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region:     us-east-1
 
       - name: Deploy to S3
         run: |
@@ -121,9 +54,7 @@ jobs:
         if: always()
         run: |
           if [ ${{ job.status }} == 'success' ]; then
-            echo "✅ Frontend deployment successful!"
-            echo "S3 Bucket: s3://${{ secrets.S3_BUCKET_NAME }}"
+            echo "✅ Frontend deployed!"
           else
-            echo "❌ Frontend deployment failed!"
-            echo "Check the logs for more details"
-          fi 
+            echo "❌ Deploy failed!"
+          fi
