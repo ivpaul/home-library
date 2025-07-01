@@ -69,6 +69,18 @@ jobs:
           grep -o '[0-9a-z]{20,}' web/build/static/js/*.js || true
           grep -o 'https://[a-zA-Z0-9.-]*/[a-zA-Z0-9_-]*' web/build/static/js/*.js || true
 
+      - name: Print secrets for debugging
+        run: |
+          echo "COGNITO_USER_POOL_ID=${{ secrets.COGNITO_USER_POOL_ID }}"
+          echo "COGNITO_CLIENT_ID=${{ secrets.COGNITO_CLIENT_ID }}"
+          echo "COGNITO_IDENTITY_POOL_ID=${{ secrets.COGNITO_IDENTITY_POOL_ID }}"
+          echo "API_GATEWAY_URL=${{ secrets.API_GATEWAY_URL }}"
+
+      - name: Clean build directory
+        run: |
+          cd web
+          rm -rf build
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
