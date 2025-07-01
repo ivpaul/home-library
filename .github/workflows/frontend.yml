@@ -62,6 +62,13 @@ jobs:
           REACT_APP_COGNITO_IDENTITY_POOL_ID: ${{ secrets.COGNITO_IDENTITY_POOL_ID }}
           REACT_APP_API_GATEWAY_URL: ${{ secrets.API_GATEWAY_URL }}
 
+      - name: Print built env vars
+        run: |
+          echo 'Checking for injected Cognito and API Gateway values in built JS files:'
+          grep -o 'us-east-1[a-zA-Z0-9_-]*' web/build/static/js/*.js || true
+          grep -o '[0-9a-z]{20,}' web/build/static/js/*.js || true
+          grep -o 'https://[a-zA-Z0-9.-]*/[a-zA-Z0-9_-]*' web/build/static/js/*.js || true
+
   deploy:
     needs: test
     runs-on: ubuntu-latest
