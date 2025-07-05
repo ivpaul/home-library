@@ -1,0 +1,10 @@
+# Old individual ID files (deprecated - now using config.json)
+.client-id
+.user-pool-id
+.identity-pool-id
+.api-gateway-id
+
+# Configuration files (keep config.json in version control, but not environment-specific ones)
+config.dev.json
+config.staging.json
+config.prod.json 
