@@ -1,0 +1,25 @@
+{
+  "name": "home-library-system",
+  "version": "1.0.0",
+  "description": "A modern web application for managing your home book collection, built with React frontend and AWS serverless backend.",
+  "main": "uploadBooks.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivpaul/home-library.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ivpaul/home-library/issues"
+  },
+  "homepage": "https://github.com/ivpaul/home-library#readme",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^17.0.1"
+  }
+}

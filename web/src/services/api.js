@@ -87,6 +87,28 @@ class ApiService {
     return this.api.delete(`/books/${isbn}`).then(res => res.data);
   }
 
+  // Favorites API
+  getTopBooks() {
+    return this.api.get('/favorites').then(res => res.data);
+  }
+
+  addFavorite(isbn) {
+    return this.api.post(`/favorites/${isbn}`).then(res => res.data);
+  }
+
+  removeFavorite(isbn) {
+    return this.api.delete(`/favorites/${isbn}`).then(res => res.data);
+  }
+
+  getUserFavorites() {
+    return this.api.get('/favorites').then(res => res.data.map(book => book.isbn));
+  }
+
+  // Admin Favorites API
+  getAdminFavorites() {
+    return this.api.get('/admin-favorites').then(res => res.data.admins);
+  }
+
   // Helper: check if book is available
   isBookAvailable(book) {
     return book.available === 1 || book.status === 'available';

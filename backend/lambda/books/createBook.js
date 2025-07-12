@@ -37,16 +37,16 @@ exports.handler = async (event) => {
         
         // Check if user is admin
         if (!isAdmin(userInfo)) {
-            return {
-                statusCode: 403,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
-                },
-                body: JSON.stringify({ error: 'Access denied. Admin privileges required to create books.' })
-            };
+                    return {
+            statusCode: 403,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+            },
+            body: JSON.stringify({ error: 'Access denied. Admin privileges required to create books.' })
+        };
         }
         
         // Parse the request body (API Gateway proxy event)
@@ -58,18 +58,18 @@ exports.handler = async (event) => {
         }
         
         if (!bookData || !bookData.isbn || !bookData.title || (!bookData.author && !bookData.authors)) {
-            return {
-                statusCode: 400,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
-                },
-                body: JSON.stringify({ 
-                    error: 'Missing required fields. Please provide: isbn, title, author/authors' 
-                })
-            };
+                    return {
+            statusCode: 400,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+            },
+            body: JSON.stringify({ 
+                error: 'Missing required fields. Please provide: isbn, title, author/authors' 
+            })
+        };
         }
 
         // Handle author data - prefer authors field, fallback to author
@@ -132,18 +132,18 @@ exports.handler = async (event) => {
         console.error('Error creating book:', error);
         
         if (error.code === 'ConditionalCheckFailedException') {
-            return {
-                statusCode: 409,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-                    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
-                },
-                body: JSON.stringify({ 
-                    error: 'Book with this ISBN already exists' 
-                })
-            };
+                    return {
+            statusCode: 409,
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+            },
+            body: JSON.stringify({ 
+                error: 'Book with this ISBN already exists' 
+            })
+        };
         }
         
         return {

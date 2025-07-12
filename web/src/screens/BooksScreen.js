@@ -24,11 +24,14 @@ import {
   Cancel as CheckOutIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon
 } from '@mui/icons-material';
 import apiService from '../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import CreateBookModal from '../components/CreateBookModal';
+import AdminFavorites from '../components/AdminFavorites';
 
 const BooksScreen = () => {
   const [books, setBooks] = useState([]);
@@ -40,6 +43,9 @@ const BooksScreen = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCreateBookModal, setShowCreateBookModal] = useState(false);
   const [notesText, setNotesText] = useState('');
+  const [userFavorites, setUserFavorites] = useState(new Set());
+  const [favoritesChanged, setFavoritesChanged] = useState(false);
+  const [adminFavoritesChanged, setAdminFavoritesChanged] = useState(false);
 
   const { user } = useAuth();
 
@@ -48,7 +54,10 @@ const BooksScreen = () => {
 
   useEffect(() => {
     fetchBooks();
-  }, []);
+    if (user) {
+      fetchUserFavorites();
+    }
+  }, [user]);
 
   useEffect(() => {
     filterBooks();
@@ -153,16 +162,58 @@ const BooksScreen = () => {
     return isAvailable ? 'Available' : 'Borrowed';
   };
 
+  const fetchUserFavorites = async () => {
+    try {
+      const favorites = await apiService.getUserFavorites();
+      setUserFavorites(new Set(favorites));
+    } catch (error) {
+      console.error('Error fetching user favorites:', error);
+      // Don't show error toast for this - it's not critical
+    }
+  };
+
+  const handleToggleFavorite = async (book) => {
+    try {
+      const isFavorite = userFavorites.has(book.isbn);
+      
+      if (isFavorite) {
+        await apiService.removeFavorite(book.isbn);
+        await fetchUserFavorites();
+        setFavoritesChanged(fc => !fc);
+        if (isAdmin) setTimeout(() => setAdminFavoritesChanged(fc => !fc), 300); // delay admin refresh
+        toast.success('Removed from favorites');
+      } else {
+        await apiService.addFavorite(book.isbn);
+        await fetchUserFavorites();
+        setFavoritesChanged(fc => !fc);
+        if (isAdmin) setTimeout(() => setAdminFavoritesChanged(fc => !fc), 300); // delay admin refresh
+        toast.success('Added to favorites');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      if (error.response?.status === 400) {
+        toast.error(error.response.data.error || 'Failed to update favorites');
+      } else {
+        toast.error('Failed to update favorites');
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <CircularProgress />
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <AdminFavorites adminFavoritesChanged={adminFavoritesChanged} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+          <CircularProgress />
+        </Box>
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <AdminFavorites adminFavoritesChanged={adminFavoritesChanged} />
+      
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Home Library
@@ -247,6 +298,20 @@ const BooksScreen = () => {
                     </Button>
                   )}
                 </CardContent>
+                
+                {/* Favorite toggle for all users */}
+                {user && (
+                  <Box sx={{ px: 2, pb: 1 }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleToggleFavorite(book)}
+                      color={userFavorites.has(book.isbn) ? 'primary' : 'default'}
+                    >
+                      {userFavorites.has(book.isbn) ? <StarIcon /> : <StarBorderIcon />}
+                    </IconButton>
+                  </Box>
+                )}
+                
                 {isAdmin && (
                   <Box sx={{ p: 2, pt: 0 }}>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>

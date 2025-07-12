@@ -82,7 +82,6 @@ jspm_packages/
 .tern-port
 
 # Sensitive configuration files (generated from GitHub Secrets in CI/CD)
-backend/infra/scripts/deployment/config.json
 web/.env
 
 # Documentation files (contain sensitive information)
@@ -97,3 +96,10 @@ web/build/
 # AWS OIDC setup script (contains sensitive configuration)
 backend/infra/scripts/deployment/setup-oidc.sh
 check-oidc.sh 
+
+# Ignore the entire infra folder
+/backend/infra/
+
+blog_notes.txt
+
+config.json
