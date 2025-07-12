@@ -41,7 +41,7 @@ jobs:
       - name: Zip and deploy Lambda functions
         run: |
           cd backend/lambda
-          for func in getBooks getBook createBook updateBook deleteBook; do
+          for func in getBooks createBook updateBook deleteBook addFavorite removeFavorite; do
             echo "Deploying $func..."
             zip -r "${func}.zip" "${func}.js" node_modules package.json
             aws lambda update-function-code \
